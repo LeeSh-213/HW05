@@ -1,24 +1,90 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "HW.h"
+#include "Engine/World.h"  
+#include "GameFramework/Actor.h"
+#include "UObject/ConstructorHelpers.h" 
+#include "Math/UnrealMathUtility.h"  
 
-// Sets default values
+
+
+
+
+
+
+
 AHW::AHW()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 }
 
-// Called when the game starts or when spawned
 void AHW::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	FVector2D Start(0, 0);
+	FVector2D Target(1, 1);
+
+	if (IsMovable(Start, Target))
+	{
+		FVector SpawnLocation = FVector(Target.X * 0.f, Target.Y * 0.f, 1.f);  
+	}
+
+	
+	Move();
 }
 
-// Called every frame
+bool AHW::IsMovable(const FVector2D& Current, const FVector2D& Target) const
+{
+	return (FMath::Abs(Target.X - Current.X) < 2 && FMath::Abs(Target.Y - Current.Y) < 2);
+}
+
+void AHW::TrySpawnActor(const FVector& Location)
+{
+	UWorld* World = GetWorld();
+	if (World)
+	{
+		FActorSpawnParameters SpawnParams;
+		SpawnParams.Owner = this;
+		AHW* NewActor = World->SpawnActor<AHW>(GetClass(), Location, FRotator::ZeroRotator, SpawnParams);
+
+		if (NewActor)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Spawned a new actor at location: (%.0f, %.0f)"), Location.X, Location.Y);
+		}
+	}
+}
+int32 AHW::Step() const
+{
+	return FMath::RandBool() ? 1 : 0;
+}
+
+void AHW::Move()
+{
+	FVector2D Current(0, 0);
+
+	for (int i = 0; i < 10; i++)
+	{
+		int32 dx = Step();
+		int32 dy = Step();
+
+		FVector2D Target(Current.X + dx, Current.Y + dy);
+
+		if (IsMovable(Current, Target))
+		{
+			Current = Target;
+
+
+			FVector SpawnLocation = FVector(Current.X * 100.f, Current.Y * 100.f, 0.f); 
+			TrySpawnActor(SpawnLocation);
+
+		}
+
+	}
+}
+
+
+
+
 void AHW::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
