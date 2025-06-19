@@ -49,7 +49,6 @@ void AHW::TrySpawnActor(const FVector& Location)
 
 		if (NewActor)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Spawned a new actor at location: (%.0f, %.0f)"), Location.X, Location.Y);
 		}
 	}
 }
@@ -72,6 +71,7 @@ void AHW::Move()
 		if (IsMovable(Current, Target))
 		{
 			Current = Target;
+			UE_LOG(LogTemp, Warning, TEXT("Step %d: 현재 위치는 (%.0f, %.0f)입니다."), i + 1, Current.X, Current.Y);
 
 
 			FVector SpawnLocation = FVector(Current.X * 100.f, Current.Y * 100.f, 0.f); 
